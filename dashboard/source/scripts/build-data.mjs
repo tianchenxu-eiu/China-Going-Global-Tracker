@@ -28,6 +28,7 @@ const alias = {
   "timor leste": "timor leste",
   "palestine": "palestine",
   "hong kong": "china",
+  "hong kong china": "china",
   "macao": "china"
 };
 
@@ -36,7 +37,7 @@ for (const c of countries) {
   const names = [c.name?.common, c.name?.official, ...(c.altSpellings || [])];
   for (const name of names) if (name) countryByName.set(norm(name), c);
 }
-const isoFor = name => countryByName.get(norm(name))?.cca2 || ({ "laos":"LA", "russia":"RU", "south korea":"KR", "north korea":"KP", "cote d ivoire":"CI", "republic of the congo":"CG", "democratic republic of the congo":"CD", "turkiye":"TR", "hong kong":"HK", "macao":"MO", "palestine":"PS", "kosovo":"XK" }[norm(name)] || "");
+const isoFor = name => countryByName.get(norm(name))?.cca2 || ({ "laos":"LA", "russia":"RU", "south korea":"KR", "north korea":"KP", "cote d ivoire":"CI", "republic of the congo":"CG", "democratic republic of the congo":"CD", "turkiye":"TR", "hong kong":"HK", "hong kong china":"HK", "macao":"MO", "palestine":"PS", "kosovo":"XK" }[norm(name)] || "");
 
 const featuresByName = new Map(geo.features.map(f => [norm(f.properties?.name || ""), f]));
 const featureFor = name => featuresByName.get(alias[norm(name)] || norm(name));
@@ -86,7 +87,7 @@ const projects = raw.projects.map(project => {
   let lat;
   let locationLabel;
   let locationPrecision;
-  if (norm(project.country) === "hong kong") {
+  if (["hong kong", "hong kong china"].includes(norm(project.country))) {
     const index = hongKongPlaced++;
     const angle = index * 2.399963;
     const radius = index === 0 ? 0 : 0.012 + (index - 1) * 0.003;
@@ -124,9 +125,10 @@ const projects = raw.projects.map(project => {
   return { ...project, lon: Number(lon.toFixed(5)), lat: Number(lat.toFixed(5)), locationLabel, locationPrecision };
 });
 
+const months = projects.map(project => project.month).filter(Boolean).sort();
 const output = {
   sourceWorkbook: raw.sourceWorkbook,
-  coverage: { start: "2024-01", end: "2026-06" },
+  coverage: { start: months[0], end: months.at(-1) },
   coordinateMethod: "GeoNames city-name match against project title and note; deterministic within-country placement otherwise.",
   coordinateQuality: { cityMatched, countryPlaced },
   projects

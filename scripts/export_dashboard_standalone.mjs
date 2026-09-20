@@ -4,13 +4,13 @@ import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
 const root = path.resolve(import.meta.dirname, '..');
-const site = path.join(root, 'web', 'going-global-dashboard');
+const site = path.join(root, 'dashboard', 'source');
 const require = createRequire(path.join(site, 'package.json'));
 const { geoNaturalEarth1, geoPath } = await import(pathToFileURL(require.resolve('d3-geo')).href);
 const { feature } = await import(pathToFileURL(require.resolve('topojson-client')).href);
 const output = process.argv[2]
   ? path.resolve(process.argv[2])
-  : path.join(root, 'outputs', 'China_Going_Global_Dashboard_local.html');
+  : path.join(root, 'dashboard', 'index.html');
 const data = JSON.parse(fs.readFileSync(path.join(site, 'app', 'data', 'projects.json'), 'utf8'));
 const atlas = require(path.join(site, 'node_modules', 'world-atlas', 'countries-110m.json'));
 const world = feature(atlas, atlas.objects.countries);
@@ -25,6 +25,20 @@ const projects = data.projects.map(project => ({
 const subregions = [...new Set(projects.map(project => project.subregion).filter(Boolean))].sort();
 const secondaryIndustries = [...new Set(projects.map(project => project.secondaryIndustry).filter(Boolean))].sort();
 const safeJson = value => JSON.stringify(value).replaceAll('<', '\\u003c');
+const observedMonths = projects.map(project => project.month).filter(Boolean).sort();
+if (!observedMonths.length) throw new Error('Dashboard data contains no project months');
+const [startYear, startMonth] = observedMonths[0].split('-').map(Number);
+const [endYear, endMonth] = observedMonths.at(-1).split('-').map(Number);
+const months = [];
+for (let year = startYear, month = startMonth; year < endYear || (year === endYear && month <= endMonth);) {
+  months.push(`${year}-${String(month).padStart(2, '0')}`);
+  month += 1;
+  if (month === 13) { year += 1; month = 1; }
+}
+const monthMax = months.length - 1;
+const formatMonth = value => value.replace('-', '/');
+const rangeLabel = `${formatMonth(months[0])}–${formatMonth(months.at(-1))}`;
+const middleMonth = months[Math.floor(monthMax / 2)];
 
 const html = `<!doctype html>
 <html lang="en">
@@ -38,12 +52,12 @@ const html = `<!doctype html>
 </head>
 <body>
 <main class="shell">
-  <header class="top"><div><div class="eyebrow">◎ ODI Intelligence</div><h1>China Going Global</h1><div class="sub">A monthly view of Chinese overseas investment and contracted construction · January 2024–June 2026</div></div><div class="headline-stats"><div><strong id="total">0</strong><small>project records</small></div><div><strong>30</strong><small>months covered</small></div></div></header>
+  <header class="top"><div><div class="eyebrow">◎ ODI Intelligence</div><h1>China Going Global</h1><div class="sub">A monthly view of Chinese overseas investment and contracted construction · ${rangeLabel}</div></div><div class="headline-stats"><div><strong id="total">0</strong><small>project records</small></div><div><strong>${months.length}</strong><small>months covered</small></div></div></header>
   <section class="card"><div class="card-head"><div><div class="module">↗ Module 01</div><h2>Overall trend</h2><p>Switch both dimensions to compare monthly activity and disclosed project value.</p></div><div class="controls"><div class="seg" id="category"><button data-v="Direct Investment" class="active">Direct Investment</button><button data-v="Contracted Construction">Contracted Construction</button></div><div class="seg" id="metric"><button data-v="Project Count" class="active">Project Count</button><button data-v="Project Value">Project Value</button></div></div></div><div class="content">
-    <div class="range-box"><div class="range-label"><span>▣ Trend time range</span><output id="trendOut"></output></div><div class="dual" id="trendDual"><div class="track"></div><div class="active-track"></div><input aria-label="Trend start month" type="range" min="0" max="29" value="0"><input aria-label="Trend end month" type="range" min="0" max="29" value="29"></div><div class="range-ticks"><span>2024/01</span><span>2025/01</span><span>2026/06</span></div></div>
+    <div class="range-box"><div class="range-label"><span>▣ Trend time range</span><output id="trendOut"></output></div><div class="dual" id="trendDual"><div class="track"></div><div class="active-track"></div><input aria-label="Trend start month" type="range" min="0" max="${monthMax}" value="0"><input aria-label="Trend end month" type="range" min="0" max="${monthMax}" value="${monthMax}"></div><div class="range-ticks"><span>${formatMonth(months[0])}</span><span>${formatMonth(middleMonth)}</span><span>${formatMonth(months.at(-1))}</span></div></div>
     <div class="trend-title"><div><strong id="trendName"></strong><span id="trendMetric"></span></div><span id="disclosure"></span></div><div class="chart-wrap"><svg id="chart" viewBox="0 0 1200 390" preserveAspectRatio="none"></svg><div class="tooltip" id="chartTip"></div></div>
   </div></section>
-  <section class="card"><div class="card-head map-head"><div><div class="module">⌖ Module 02</div><h2>Project map</h2><p>Hover for project details. Scroll to zoom, drag to pan, or use the map controls.</p></div><div class="range-box" style="margin:0"><div class="range-label"><span>▣ Time range</span><output id="mapOut"></output></div><div class="dual" id="mapDual"><div class="track"></div><div class="active-track"></div><input aria-label="Map start month" type="range" min="0" max="29" value="0"><input aria-label="Map end month" type="range" min="0" max="29" value="29"></div><div class="range-ticks"><span>2024/01</span><span>2025/01</span><span>2026/06</span></div></div></div><div class="content">
+  <section class="card"><div class="card-head map-head"><div><div class="module">⌖ Module 02</div><h2>Project map</h2><p>Hover for project details. Scroll to zoom, drag to pan, or use the map controls.</p></div><div class="range-box" style="margin:0"><div class="range-label"><span>▣ Time range</span><output id="mapOut"></output></div><div class="dual" id="mapDual"><div class="track"></div><div class="active-track"></div><input aria-label="Map start month" type="range" min="0" max="${monthMax}" value="0"><input aria-label="Map end month" type="range" min="0" max="${monthMax}" value="${monthMax}"></div><div class="range-ticks"><span>${formatMonth(months[0])}</span><span>${formatMonth(middleMonth)}</span><span>${formatMonth(months.at(-1))}</span></div></div></div><div class="content">
     <div class="filter-grid"><label>Primary category<select id="mapCategory"><option value="All">All categories</option><option>Direct Investment</option><option>Contracted Construction</option></select></label><label>Region · secondary<select id="mapRegion"><option value="All">All secondary regions</option></select></label><label>Industry · secondary<select id="mapIndustry"><option value="All">All secondary industries</option></select></label></div>
     <div class="stats"><div class="stat"><span>▦</span><div><strong id="visible"></strong><small>visible projects</small></div></div><div class="stat"><i style="background:var(--di)"></i><div><strong id="diCount"></strong><small>direct investment</small></div></div><div class="stat"><i style="background:var(--cc)"></i><div><strong id="ccCount"></strong><small>contracted construction</small></div></div><div class="stat"><span>↗</span><div><strong id="visibleValue"></strong><small>disclosed value</small></div></div></div>
     <div class="map-wrap" id="mapWrap"><svg id="map" viewBox="0 0 1000 500"><rect width="1000" height="500" fill="#eaf3f4"/><g id="mapView"><g id="countries"></g><g id="markers"></g></g></svg><div class="zoom"><button id="zin" title="Zoom in">＋</button><button id="zout" title="Zoom out">−</button><button id="reset" title="Reset map">⌖</button></div><div class="legend"><span><i style="background:var(--di)"></i>Direct investment</span><span><i style="background:var(--cc)"></i>Contracted construction</span></div><div class="tooltip map-tip" id="mapTip"></div></div>
@@ -54,15 +68,15 @@ const html = `<!doctype html>
 const projects=${safeJson(projects)};
 const paths=${safeJson(countryPaths)};
 const subregions=${safeJson(subregions)}, secondaryIndustries=${safeJson(secondaryIndustries)};
-const months=Array.from({length:30},(_,i)=>{const d=new Date(Date.UTC(2024,i,1));return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')});
+const months=${safeJson(months)},monthMax=months.length-1;
 const fmtMonth=s=>s.replace('-','/'), fmtUsd=v=>v==null?'Not disclosed':new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',notation:'compact',maximumFractionDigits:2}).format(v), compact=v=>v>=1e9?'$'+(v/1e9).toFixed(1)+'bn':'$'+Math.round(v/1e6)+'m', esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let category='Direct Investment',metric='Project Count',trendRange=[0,29],mapRange=[0,29],mapCategory='All',mapRegion='All',mapIndustry='All',view={x:0,y:0,k:1},drag=null;
+let category='Direct Investment',metric='Project Count',trendRange=[0,monthMax],mapRange=[0,monthMax],mapCategory='All',mapRegion='All',mapIndustry='All',view={x:0,y:0,k:1},drag=null;
 const q=s=>document.querySelector(s), ns='http://www.w3.org/2000/svg'; q('#total').textContent=projects.length.toLocaleString();
 q('#countries').innerHTML=paths.map(d=>'<path class="country" d="'+d+'"/>').join('');
 q('#mapRegion').innerHTML+=subregions.map(v=>'<option>'+esc(v)+'</option>').join('');q('#mapIndustry').innerHTML+=secondaryIndustries.map(v=>'<option>'+esc(v)+'</option>').join('')+'<option>Not classified</option>';q('#mapCategory').onchange=e=>{mapCategory=e.target.value;renderMap()};q('#mapRegion').onchange=e=>{mapRegion=e.target.value;renderMap()};q('#mapIndustry').onchange=e=>{mapIndustry=e.target.value;renderMap()};
 function wireSeg(id,setter){q(id).addEventListener('click',e=>{if(e.target.tagName!=='BUTTON')return;q(id).querySelectorAll('button').forEach(b=>b.classList.toggle('active',b===e.target));setter(e.target.dataset.v);renderTrend()})}
 wireSeg('#category',v=>category=v);wireSeg('#metric',v=>metric=v);
-function wireRange(id,state,setState,render){const box=q(id),ins=[...box.querySelectorAll('input')],active=box.querySelector('.active-track');function go(which){let a=+ins[0].value,b=+ins[1].value;if(which===0)a=Math.min(a,b);else b=Math.max(a,b);ins[0].value=a;ins[1].value=b;active.style.left=(a/29*100)+'%';active.style.right=(100-b/29*100)+'%';setState([a,b]);render()}ins.forEach((el,i)=>el.addEventListener('input',()=>go(i)));go(0)}
+function wireRange(id,state,setState,render){const box=q(id),ins=[...box.querySelectorAll('input')],active=box.querySelector('.active-track'),den=Math.max(1,monthMax);function go(which){let a=+ins[0].value,b=+ins[1].value;if(which===0)a=Math.min(a,b);else b=Math.max(a,b);ins[0].value=a;ins[1].value=b;active.style.left=(a/den*100)+'%';active.style.right=(100-b/den*100)+'%';setState([a,b]);render()}ins.forEach((el,i)=>el.addEventListener('input',()=>go(i)));go(0)}
 wireRange('#trendDual',()=>trendRange,v=>trendRange=v,renderTrend);wireRange('#mapDual',()=>mapRange,v=>mapRange=v,renderMap);
 function renderTrend(){q('#trendOut').textContent=fmtMonth(months[trendRange[0]])+' — '+fmtMonth(months[trendRange[1]]);q('#trendName').textContent=category;q('#trendMetric').textContent=' · '+metric;const rows=projects.filter(p=>p.primaryCategory===category&&p.month>=months[trendRange[0]]&&p.month<=months[trendRange[1]]),disclosed=rows.filter(p=>p.valueUsd!=null).length;q('#disclosure').textContent=metric==='Project Value'?'Values shown in USD billions · '+disclosed+'/'+rows.length+' records disclose value':'';const vals=months.slice(trendRange[0],trendRange[1]+1).map(m=>{const r=rows.filter(p=>p.month===m);return{month:m,value:metric==='Project Count'?r.length:r.reduce((s,p)=>s+(p.valueUsd||0),0)/1e9,disclosed:r.filter(p=>p.valueUsd!=null).length,records:r.length}});drawChart(vals)}
 function drawChart(vals){const svg=q('#chart'),W=1200,H=390,L=62,R=20,T=20,B=42,max=Math.max(1,...vals.map(d=>d.value)),x=i=>L+(vals.length===1?0:(W-L-R)*i/(vals.length-1)),y=v=>T+(H-T-B)*(1-v/max);let out='';for(let i=0;i<5;i++){const yy=T+(H-T-B)*i/4,val=max*(1-i/4);out+='<line class="gridline" x1="'+L+'" x2="'+(W-R)+'" y1="'+yy+'" y2="'+yy+'"/><text class="axis" x="'+(L-9)+'" y="'+(yy+4)+'" text-anchor="end">'+(metric==='Project Value'?'$'+val.toFixed(val<10?1:0)+'bn':Math.round(val))+'</text>'}const pts=vals.map((d,i)=>x(i)+','+y(d.value)).join(' '),area=L+','+(H-B)+' '+pts+' '+x(vals.length-1)+','+(H-B);out+='<polygon class="area" fill="'+(category==='Direct Investment'?'var(--di)':'var(--cc)')+'" points="'+area+'"/><polyline class="line" stroke="'+(category==='Direct Investment'?'var(--di)':'var(--cc)')+'" points="'+pts+'"/>';const every=Math.max(1,Math.ceil(vals.length/10));vals.forEach((d,i)=>{if(i%every===0||i===vals.length-1)out+='<text class="axis" x="'+x(i)+'" y="'+(H-13)+'" text-anchor="middle">'+fmtMonth(d.month)+'</text>';out+='<circle class="dot" data-i="'+i+'" cx="'+x(i)+'" cy="'+y(d.value)+'" r="7" fill="transparent" stroke="transparent"/>'});svg.innerHTML=out;const tip=q('#chartTip');svg.querySelectorAll('.dot').forEach(c=>c.addEventListener('mouseenter',e=>{const d=vals[+e.target.dataset.i];tip.innerHTML='<b>'+fmtMonth(d.month)+'</b>'+metric+': <strong>'+(metric==='Project Value'?'$'+d.value.toFixed(2)+'bn':d.value+' projects')+'</strong>'+(metric==='Project Value'?'<br>'+d.disclosed+'/'+d.records+' disclosed':'');tip.style.display='block';tip.style.left=Math.min(e.offsetX+14,svg.clientWidth-210)+'px';tip.style.top=Math.max(5,e.offsetY-45)+'px'}));svg.onmouseleave=()=>tip.style.display='none'}

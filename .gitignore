@@ -8,6 +8,7 @@ dist/
 # Local configuration and credentials
 .env
 .env.*
+.streamlit/secrets.toml
 *.key
 *.pem
 *.pfx
@@ -24,4 +25,3 @@ tmp/
 *.inspect.ndjson
 *.log
 ~$*.xlsx
-

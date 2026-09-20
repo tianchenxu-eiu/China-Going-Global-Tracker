@@ -39,7 +39,13 @@ China Going Global Tracker is a source-verifiable dataset and research workflow 
 
 ## Dashboard note
 
-The included dashboard is a previous visualisation build. Its embedded data should be regenerated from the latest workbook before external publication. The workbook is the authoritative current dataset.
+The dashboard is regenerated from the authoritative `data/ODI_Tracker_latest.xlsx` workbook. Its time controls expand automatically to the earliest and latest announcement months in the database.
+
+## Automated dashboard publication
+
+A push that changes `data/ODI_Tracker_latest.xlsx` triggers `.github/workflows/rebuild-dashboard.yml`. The workflow validates the `Projects` worksheet, rebuilds the dashboard JSON, regenerates `dashboard/index.html`, reconciles record counts and coordinates, and commits the generated files back to `main`. Streamlit Community Cloud then refreshes the deployed app from the updated repository.
+
+The Streamlit app reads its access password from the private `APP_PASSWORD` setting in Streamlit Secrets. Do not commit `.streamlit/secrets.toml`; use `.streamlit/secrets.toml.example` only as a field-name reference.
 
 ## Methodology
 
@@ -51,5 +57,5 @@ The tracker is compiled from public sources on a best-effort basis. Project anno
 
 ## Access and licensing
 
-This initial repository is intended to be private. No public reuse licence is granted at this stage. A separate code and data licence should be selected before making the repository public.
+The repository may be publicly viewable, but no public reuse licence is granted at this stage. A separate code and data licence should be selected before permitting reuse.
 

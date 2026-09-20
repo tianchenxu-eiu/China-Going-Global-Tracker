@@ -1,0 +1,4 @@
+interface:
+  display_name: "China Going Global Publisher"
+  short_description: "Publish tracker updates to GitHub and Streamlit"
+  default_prompt: "Use $china-going-global-publisher to validate and publish the approved tracker update."
