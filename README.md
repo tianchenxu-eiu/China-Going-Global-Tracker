@@ -2,8 +2,6 @@
 
 China Going Global Tracker is a source-verifiable dataset and research workflow for tracking overseas direct-investment projects and newly awarded contracted-construction projects involving mainland Chinese companies.
 
-中国出海项目追踪器用于持续整理、核实和分析中国大陆企业的海外直接投资项目，以及中国企业在海外新近中标的承包工程项目。
-
 ## Repository contents
 
 - `data/ODI_Tracker_latest.xlsx` — latest reviewed master workbook, covering January 2023 through August 2026.
