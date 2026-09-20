@@ -1,0 +1,27 @@
+# Dependencies and generated web artifacts
+node_modules/
+.next/
+.vinext/
+.wrangler/
+dist/
+
+# Local configuration and credentials
+.env
+.env.*
+*.key
+*.pem
+*.pfx
+
+# Python and operating-system files
+__pycache__/
+*.py[cod]
+.DS_Store
+Thumbs.db
+
+# Temporary and audit artifacts
+work/
+tmp/
+*.inspect.ndjson
+*.log
+~$*.xlsx
+

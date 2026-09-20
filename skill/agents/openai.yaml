@@ -1,0 +1,6 @@
+interface:
+  display_name: "China Overseas Projects Monthly"
+  short_description: "High-coverage monthly research of Chinese overseas investment and construction awards."
+  default_prompt: "Use $china-overseas-projects-monthly to compile qualifying projects for YYYY-MM with country, company, sector, and source coverage audits, then produce a validated Excel workbook."
+policy:
+  allow_implicit_invocation: true

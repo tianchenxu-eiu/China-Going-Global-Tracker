@@ -1,0 +1,62 @@
+﻿Taxonomy,Allowed Value,Code
+Region,Europe,
+Region,Central Asia,
+Region,Asia-Pacific,
+Region,North America,
+Region,Latin America and the Caribbean,
+Region,Africa,
+Region,Middle East,
+Subregion,EU,
+Subregion,non-EU Europe (excl Russia),
+Subregion,Russia,
+Subregion,Central Asia,
+Subregion,Northeast Asia,
+Subregion,South Asia,
+Subregion,Southeast Asia,
+Subregion,Oceania,
+Subregion,North America,
+Subregion,Central America,
+Subregion,the Caribbean,
+Subregion,South America,
+Subregion,North Africa,
+Subregion,Sub-Saharan Africa,
+Subregion,Middle East,
+Direct Investment Industry,"A Agriculture, forestry, animal husbandry and fishery",A
+Direct Investment Industry,B Mining,B
+Direct Investment Industry,C Manufacturing,C
+Direct Investment Industry,"D Production and supply of electricity, heat, gas and water",D
+Direct Investment Industry,E Construction,E
+Direct Investment Industry,F Wholesale and retail,F
+Direct Investment Industry,"G Transport, storage and postal services",G
+Direct Investment Industry,H Accommodation and catering,H
+Direct Investment Industry,"I Information transmission, software and information technology services",I
+Direct Investment Industry,J Finance,J
+Direct Investment Industry,K Real estate,K
+Direct Investment Industry,L Leasing and business services,L
+Direct Investment Industry,M Scientific research and technical services,M
+Direct Investment Industry,"N Water conservancy, environment and public facilities management",N
+Direct Investment Industry,"O Resident services, repairs and other services",O
+Direct Investment Industry,P Education,P
+Direct Investment Industry,Q Health and social work,Q
+Direct Investment Industry,"R Culture, sports and entertainment",R
+Direct Investment Industry,"S Public administration, social security and social organizations",S
+Direct Investment Industry,T International organizations,T
+Contracted Construction Industry,Transportation,
+Contracted Construction Industry,Building,
+Contracted Construction Industry,Power engineering,
+Contracted Construction Industry,Communications engineering,
+Contracted Construction Industry,Water infrastructure,
+Contracted Construction Industry,Industrial (including industrial parks),
+Contracted Construction Industry,Non-renewable energy,
+Contracted Construction Industry,Renewable energy,
+Contracted Construction Industry,Waste treatment,
+Contracted Construction Industry,Others,
+Primary Category,Direct Investment,
+Primary Category,Contracted Construction,
+Direct Investment Secondary Category,Greenfield Investment,
+Direct Investment Secondary Category,Merger & Acquisition,
+Direct Investment Secondary Category,Reinvestment,
+Direct Investment Secondary Category,Others,
+Contracted Construction Secondary Category,EPC,
+Contracted Construction Secondary Category,BOT/PPP,
+Contracted Construction Secondary Category,Others,
